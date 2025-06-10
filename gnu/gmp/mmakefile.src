@@ -1,15 +1,19 @@
-# Copyright © 2004-2018, The AROS Development Team. All rights reserved.
+# Copyright © 2004-2025, The AROS Development Team. All rights reserved.
 # $Id$
 
 include $(SRCDIR)/config/aros-contrib.cfg
 
 #MM- contrib-gnu-gmp : development-gmp
 
-GMP_EXTRAOPTS := --libdir=$(AROS_LIB)
+GMP_VERSION=6.3.0
 
-GMP_CFLAGS := -DPOSIXC_NO_VAARGS
+GMP_EXTRAOPTS := \
+    --libdir=$(AROS_LIB)
 
-%fetch_and_build_gnu_development package=gmp version=5.1.2 patch=yes \
+GMP_CPPFLAGS := -DPOSIXC_NO_VAARGS
+GMP_CFLAGS :=  $(CFLAGS_GNU99) $(GMP_CPPFLAGS) 
+
+%fetch_and_build_gnu_development package=gmp version=$(GMP_VERSION) patch=yes \
     extraoptions="$(GMP_EXTRAOPTS)" extracflags="$(GMP_CFLAGS)" nlsflag=no xflag=no
 
 %common
