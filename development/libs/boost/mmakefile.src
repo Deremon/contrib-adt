@@ -6,6 +6,7 @@ include $(SRCDIR)/config/aros-contrib.cfg
 BOOSTVERSION=1.88.0
 BOOSTVRS=1_88_0
 ARCHBASE     := boost_$(BOOSTVRS)
+ARCHSRCDIR := $(PORTSDIR)/boost/$(ARCHBASE)
 boostlib-buildflag := $(GENDIR)/$(CURDIR)/.buildflag-boostlib-$(BOOSTVERSION)-$(AROS_TARGET_CPU)
 boostlib-installflag := $(GENDIR)/$(CURDIR)/.installflag-boostlib-$(BOOSTVERSION)-$(AROS_TARGET_CPU)
 
@@ -14,18 +15,18 @@ boostlib-installflag := $(GENDIR)/$(CURDIR)/.installflag-boostlib-$(BOOSTVERSION
 #MM- development-libs-boost-quick : development-libs-boost
 #MM- development-libs-boost-copy-src : compiler-boost-fetch
 
-%copy_dir_recursive mmake=development-libs-boost-copy-src src=$(PORTSDIR)/boost/$(ARCHBASE) dst=$(GENDIR)/$(CURDIR)
+%copy_dir_recursive mmake=development-libs-boost-copy-src src=$(ARCHSRCDIR) dst=$(GENDIR)/$(CURDIR)
 
 #MM
 development-libs-boost:
 	@$(IF) ! $(TEST) -f $(boostlib-buildflag) ; then \
 		cd "$(GENDIR)/$(CURDIR)" && \
-		$(ECHO) "Bootstrapping boost libraries..." && \
-		chmod +x "./bootstrap.sh" && \
-		./bootstrap.sh --prefix=$(AROS_DEVELOPER) --with-libraries=system,filesystem,iostreams > bootstrap.log 2>&1 && \
+		$(ECHO) "Bootstrapping boost..." && \
+		chmod +x "$(ARCHSRCDIR)/bootstrap.sh" && \
+		$(ARCHSRCDIR)/bootstrap.sh --prefix=$(AROS_DEVELOPER) --with-libraries=system,filesystem,iostreams > $(GENDIR)/$(CURDIR)/bootstrap.log 2>&1 && \
 		$(ECHO) "Building boost libraries..." && \
 		$(ECHO) "using gcc : : \"$(AROS_CXX)\" : <compileflags>\"$(CXXFLAGS)\" <linkflags>\"$(LDFLAGS)\" ;\n" > $(GENDIR)/$(CURDIR)/user-config.jam && \
-		./b2 --quiet -sBOOST_ROOT="$(GENDIR)/$(CURDIR)" toolset=gcc && \
+		$(GENDIR)/$(CURDIR)/b2 --quiet -sBOOST_ROOT="$(GENDIR)/$(CURDIR)" toolset=gcc && \
 		$(TOUCH) $(boostlib-buildflag) ; \
 	fi
 	@$(IF) $(TEST) -f $(boostlib-buildflag) \
