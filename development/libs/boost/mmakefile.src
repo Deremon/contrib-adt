@@ -1,0 +1,28 @@
+# Copyright 2018-2025, The AROS Development Team. All rights reserved.
+# $Id: mmakefile.src $
+
+include $(SRCDIR)/config/aros-contrib.cfg
+
+BOOSTVERSION=1.88.0
+BOOSTVRS=1_88_0
+ARCHBASE     := boost_$(BOOSTVRS)
+
+#MM- contrib-development : development-libs-boost
+#MM development-libs-boost : development-libs-boost-copy-src
+#MM- development-libs-boost-quick : development-libs-boost
+#MM- development-libs-boost-copy-src : compiler-boost-fetch
+
+%copy_dir_recursive mmake=development-libs-boost-copy-src src=$(PORTSDIR)/boost/$(ARCHBASE) dst=$(GENDIR)/$(CURDIR)
+
+#MM
+development-libs-boost:
+	@$(ECHO) "Building boost libraries..."
+	@cd "$(GENDIR)/$(CURDIR)" && \
+	chmod +x "./bootstrap.sh" && \
+	./bootstrap.sh --prefix=$(AROS_DEVELOPER) --with-libraries=system,filesystem,iostreams && \
+	echo "using gcc : : \"$(AROS_CXX)\" : <compileflags>\"$(CXXFLAGS)\" <linkflags>\"$(LDFLAGS)\" ;\n" > $(GENDIR)/$(CURDIR)/user-config.jam && \
+	./b2 -sBOOST_ROOT="$(GENDIR)/$(CURDIR)" toolset=gcc
+	@$(ECHO) "Installing boost libraries..."
+	@cp $(GENDIR)/$(CURDIR)/stage/lib/lib*.a $(AROS_DEVELOPER)/lib
+
+%common
